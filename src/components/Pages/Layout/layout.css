@@ -1,0 +1,30 @@
+.linkContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.links {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 5%;
+}
+
+.linkCard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.link {
+    text-decoration: none;
+    color: white;
+    background-color: #97caff;
+    padding: 0px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.activeLink {
+    background-color: #007BFF;
+}
