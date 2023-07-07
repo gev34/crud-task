@@ -21,9 +21,9 @@ export const userPostsSlice = (
   }
 };
 
-export const userPostsPageAction = (isUserAdsPage:boolean) => {
+export const userPostsPageAction = (isUserAdsPage: boolean) => {
   return {
     type: "USER_POSTS_PAGE",
-    isUserAdsPage
+    isUserAdsPage,
   };
 };

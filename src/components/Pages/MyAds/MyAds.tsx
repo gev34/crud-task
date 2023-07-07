@@ -1,7 +1,7 @@
 //COMPONENTS
 import Declarations from "../../Declarations/Declarations";
 //CSS
-import './myAds.css'
+import "./myAds.scss";
 
 const MyAds: React.FC = () => {
   return (

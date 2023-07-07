@@ -5,6 +5,7 @@ const initialState = {
 };
 interface userInfoActionProps {
   type: string;
+  declarationId: string;
   declaration: {
     declarationTitle: string;
     declarationText: string;
@@ -21,7 +22,7 @@ export const userInfoSlice = (
     case "ADD_NEW_DECLARATION":
       return {
         ...state,
-        declarationData: [...state.declarationData, action.declaration],
+        declarationData: [action.declaration, ...state.declarationData],
       };
     case "EDIT_DECLARATION":
       return {
@@ -39,19 +40,19 @@ export const userInfoSlice = (
               : declaration
         ),
       };
-      // case "DELETE_DECLARATION":
-      //   return {
-      //     ...state,
-      //     declarationData:state.declarationData.filter((declaration: {
-      //       title: string;
-      //       phone: string;
-      //       city: string;
-      //       adText: string;
-      //       id: string | undefined;
-      //     }) => {
-      //       declaration.id !== action.declaration.declarationId
-      //     })
-      //   }
+    case "DELETE_DECLARATION":
+      return {
+        ...state,
+        declarationData: state.declarationData.filter(
+          (declaration: {
+            title: string;
+            phone: string;
+            city: string;
+            adText: string;
+            id: string | undefined;
+          }) => declaration.id !== action.declarationId
+        ),
+      };
     default:
       return state;
   }
@@ -66,6 +67,7 @@ export const newDeclararionAction = (declaration: object) => {
     },
   };
 };
+
 export const editAdAction = (declaration: {
   title: string;
   phone: string;
@@ -75,16 +77,13 @@ export const editAdAction = (declaration: {
 }) => {
   return {
     type: "EDIT_DECLARATION",
-    declaration: {
-      ...declaration,
-      declarationId: declaration.id,
-    },
-  };
-};
-export const deleteAdAction = (declarationId:string) => {
-  return {
-    type: "DELETE_DECLARATION",
-    declarationId
+    declaration,
   };
 };
 
+export const deleteAdAction = (declarationId: string) => {
+  return {
+    type: "DELETE_DECLARATION",
+    declarationId,
+  };
+};

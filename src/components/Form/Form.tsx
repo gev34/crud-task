@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+//COMPONENTS
+import Modal from "../Modal/Modal";
 //REDUX
 import { useDispatch, useSelector } from "react-redux";
-//INTERFACE
 import {
   editAdAction,
   newDeclararionAction,
 } from "../../redux/slices/userInfoSlice";
 import { StateProps } from "../../redux/interface/ReduxStateInterface";
 //ICONS
-import { AiFillEdit } from "react-icons/ai";
-import { AiFillDelete } from "react-icons/ai";
+import { AiFillEdit, AiFillDelete } from "react-icons/ai";
 //CSS
 import "./form.scss";
-import Modal from "../Modal/Modal";
 
 const cities = [
   "Yerevan",
@@ -30,44 +29,81 @@ interface FormProps {
   addedCity?: string;
   declarationId?: string;
 }
+
 const Form: React.FC<FormProps> = ({
   addedTitle = "",
   addedText = "",
   addedPhone = "",
   addedCity = "",
-  declarationId,
+  declarationId = "",
 }) => {
-  const [title, setTitle] = useState("");
-  const [adText, setAdText] = useState("");
-  const [phone, setPhone] = useState("");
-  const [city, setCity] = useState("");
-  const [editing, setEditing] = useState(true);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [form, setForm] = useState({
+    title: addedTitle,
+    adText: addedText,
+    phone: addedPhone,
+    city: addedCity,
+  });
 
-  useEffect(() => {
-    setTitle(addedTitle);
-    setAdText(addedText);
-    setPhone(addedPhone);
-    setCity(addedCity);
-  }, [addedTitle, addedText, addedPhone, addedCity]);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [createdAd, setCreatedAd] = useState(false);
+  const [deletedAd, setDeletedAd] = useState(false);
 
   const dispatch = useDispatch();
   const isUserAdsPage = useSelector(
     (state: StateProps) => state.userPostsReducer.isUserAdsPage
   );
+  const [editing, setEditing] = useState(isUserAdsPage);
+  const updateField = useCallback(
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
+      setForm({
+        ...form,
+        [e.target.name]: e.target.value,
+      });
+    },
+    [form]
+  );
+
+  useEffect(() => {
+    setForm({
+      title: addedTitle,
+      adText: addedText,
+      phone: addedPhone,
+      city: addedCity,
+    });
+  }, [addedTitle, addedText, addedPhone, addedCity]);
+
+  const creatingAd = () => {
+    setForm({ title: "", adText: "", phone: "", city: "" });
+    setCreatedAd(true);
+  };
+
+  const deletingAd = () => {
+    setDeletedAd(true);
+    setModalIsOpen(true);
+    setEditing(false);
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isUserAdsPage) {
-      dispatch(editAdAction({ title, adText, phone, city, id: declarationId }));
-      setEditing(true);
-    } else {
-      dispatch(newDeclararionAction({ title, adText, phone, city }));
+    if (!deletedAd) {
+      const action = isUserAdsPage
+        ? editAdAction({ ...form, id: declarationId })
+        : newDeclararionAction(form);
+      dispatch(action);
+      if (!isUserAdsPage) creatingAd();
+      else setEditing(true);
     }
+    setModalIsOpen(true);
   };
 
-  const isEditing = () => {
-    return isUserAdsPage ? editing : false;
+  const modalStatus = () => {
+    if (createdAd) return "createdAd";
+    else if (editing && !deletedAd) return "editedAd";
+    else if (deletedAd) return "deletedAd";
   };
 
   return (
@@ -76,46 +112,51 @@ const Form: React.FC<FormProps> = ({
         {isUserAdsPage && (
           <div className="iconsContainer">
             <AiFillEdit onClick={() => setEditing(false)} />
-            <AiFillDelete onClick={() => setModalIsOpen(true)} />
+            <AiFillDelete onClick={deletingAd} />
           </div>
         )}
         <label>
           Title
           <input
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            name="title"
+            value={form.title}
+            onChange={updateField}
             required
             maxLength={140}
-            disabled={isEditing()}
+            disabled={editing || deletedAd}
           />
         </label>
         <label>
           Ad Text
           <textarea
-            value={adText}
-            onChange={(e) => setAdText(e.target.value)}
+            name="adText"
+            value={form.adText}
+            onChange={updateField}
             maxLength={300}
-            disabled={isEditing()}
+            disabled={editing || deletedAd}
           />
         </label>
         <label>
           Phone
           <input
             type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            name="phone"
+            placeholder="+374 (ХХ) ХХХХХХ"
+            value={form.phone}
+            onChange={updateField}
             required
-            disabled={isEditing()}
-            //   pattern="^\+374 \(\d{2}\) \d{6}$"
+            disabled={editing || deletedAd}
+            pattern="\+374 ?\(\d{2}\) ?\d{3} ?\d{3}"
           />
         </label>
         <label>
           City
           <select
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            disabled={isEditing()}
+            name="city"
+            value={form.city}
+            onChange={updateField}
+            disabled={editing || deletedAd}
           >
             <option value="">-- select an option --</option>
             {cities.map((city, i) => (
@@ -125,12 +166,18 @@ const Form: React.FC<FormProps> = ({
             ))}
           </select>
         </label>
-        <button type="submit">{isUserAdsPage ? "Save" : "Submit"}</button>
+        <button disabled={editing || deletedAd} type="submit">
+          {isUserAdsPage ? "Save" : "Submit"}
+        </button>
       </form>
       {modalIsOpen && (
-        <Modal isOpen={modalIsOpen} onClose={() => setModalIsOpen(false)}>
-          <h1>Modal Content</h1>
-        </Modal>
+        <Modal
+          status={modalStatus()}
+          declarationId={declarationId}
+          isOpen={modalIsOpen}
+          onClose={() => setModalIsOpen(false)}
+          onDelete={() => setEditing(true)}
+        />
       )}
     </>
   );

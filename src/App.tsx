@@ -4,16 +4,15 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { Layout } from "./components/Pages/Layout/Layout";
 import NewAd from "./components/Pages/NewAd/NewAd";
 import MyAds from "./components/Pages/MyAds/MyAds";
-import NotFoundPage from "./components/Pages/NotFoundPage/NotFoundPage";
 //CSS
-import "./App.css";
+import "./App.scss";
 
 function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
     navigate("/new-ad"); // eslint-disable-next-line
-  }, []); 
+  }, []);
 
   return (
     <div className="App">
@@ -22,7 +21,6 @@ function App() {
           <Route index element={<NewAd />} />
           <Route path="/new-ad" element={<NewAd />} />
           <Route path="/my-ads" element={<MyAds />} />
-          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </div>
