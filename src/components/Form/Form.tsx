@@ -99,7 +99,9 @@ const Form: React.FC<FormProps> = ({
     }
     setModalIsOpen(true);
   };
-
+  const disabledFields = () => {
+   return  editing || deletedAd
+  }
   const modalStatus = () => {
     if (createdAd) return "createdAd";
     else if (editing && !deletedAd) return "editedAd";
@@ -124,7 +126,7 @@ const Form: React.FC<FormProps> = ({
             onChange={updateField}
             required
             maxLength={140}
-            disabled={editing || deletedAd}
+            disabled={disabledFields()}
           />
         </label>
         <label>
@@ -134,7 +136,7 @@ const Form: React.FC<FormProps> = ({
             value={form.adText}
             onChange={updateField}
             maxLength={300}
-            disabled={editing || deletedAd}
+            disabled={disabledFields()}
           />
         </label>
         <label>
@@ -146,7 +148,7 @@ const Form: React.FC<FormProps> = ({
             value={form.phone}
             onChange={updateField}
             required
-            disabled={editing || deletedAd}
+            disabled={disabledFields()}
             pattern="\+374 ?\(\d{2}\) ?\d{3} ?\d{3}"
           />
         </label>
@@ -156,7 +158,7 @@ const Form: React.FC<FormProps> = ({
             name="city"
             value={form.city}
             onChange={updateField}
-            disabled={editing || deletedAd}
+            disabled={disabledFields()}
           >
             <option value="">-- select an option --</option>
             {cities.map((city, i) => (
@@ -166,7 +168,7 @@ const Form: React.FC<FormProps> = ({
             ))}
           </select>
         </label>
-        <button disabled={editing || deletedAd} type="submit">
+        <button disabled={disabledFields()} type="submit">
           {isUserAdsPage ? "Save" : "Submit"}
         </button>
       </form>
